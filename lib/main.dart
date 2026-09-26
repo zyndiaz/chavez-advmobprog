@@ -1,17 +1,16 @@
-// packages
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
-// screens
 import 'screens/home_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/product_screen.dart';
+import 'screens/cart_screen.dart';
 
-// providers
 import 'providers/theme_provider.dart';
-import 'providers/product_provider.dart';
+import 'providers/cart_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +31,7 @@ class ChavezAdvMobProg extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(412, 715),
@@ -45,10 +44,12 @@ class ChavezAdvMobProg extends StatelessWidget {
             theme: themeModel.lightTheme,
             darkTheme: themeModel.darkTheme,
             themeMode: themeModel.isDark ? ThemeMode.dark : ThemeMode.light,
-            title: 'E-Commerce App',
+            title: 'NU Bulldogs Exchange',
             initialRoute: '/home',
             routes: {
               '/home': (context) => const HomeScreen(),
+              '/product': (context) => const ProductScreen(),
+              '/cart': (context) => const CartScreen(),
               '/settings': (context) => const SettingsScreen(),
             },
           );

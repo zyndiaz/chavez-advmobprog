@@ -6,9 +6,7 @@ import '../models/product.dart';
 class ProductService {
   Future<List<Product>> getAllProducts() async {
     try {
-      final response = await http.get(
-        Uri.parse('$host/products?limit=20'),
-      );
+      final response = await http.get(Uri.parse('$host/products?limit=0'));
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
@@ -24,9 +22,7 @@ class ProductService {
 
   Future<Product> getProductById(int id) async {
     try {
-      final response = await http.get(
-        Uri.parse('$host/products/$id'),
-      );
+      final response = await http.get(Uri.parse('$host/products/$id'));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -41,9 +37,7 @@ class ProductService {
 
   Future<List<String>> getCategories() async {
     try {
-      final response = await http.get(
-        Uri.parse('$host/products/categories'),
-      );
+      final response = await http.get(Uri.parse('$host/products/categories'));
 
       if (response.statusCode == 200) {
         final List data = jsonDecode(response.body);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'product_screen.dart';
+import 'cart_screen.dart';
 import '../widgets/custom_text.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,51 +18,74 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          elevation: 2,
-          title: (_selectedIndex == 0)
-              ? Image.asset('assets/images/nubdexchange_logo.jpg', scale: 11.sp)
-              : CustomText(
-                  text: (_selectedIndex == 1)
-                      ? 'Chat'
-                      : (_selectedIndex == 2)
-                      ? 'Profile'
-                      : 'Home',
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.settings, size: 24.sp),
-              onPressed: () => Navigator.pushNamed(context, '/settings'),
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        elevation: 2,
+        backgroundColor: const Color(0xFF1A237E),
+        foregroundColor: Colors.white,
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/images/nubdexchange_logo.jpg',
+              height: 40.h,
+              width: 40.w,
+              fit: BoxFit.cover,
+            ),
+            SizedBox(width: 8.w),
+            CustomText(
+              text: _selectedIndex == 0
+                  ? 'Shop'
+                  : _selectedIndex == 1
+                  ? 'Cart'
+                  : 'Profile',
+              fontSize: _selectedIndex == 0 ? 18.sp : 20.sp,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
             ),
           ],
         ),
-        body: PageView(
-          physics: const NeverScrollableScrollPhysics(),
-          controller: _pageController,
-          children: const <Widget>[ProductScreen()],
-          onPageChanged: (page) {
-            setState(() {
-              _selectedIndex = page;
-            });
-          },
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          onTap: _onTappedBar,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.shop_2), label: 'Shop'),
-            BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-          ],
-          currentIndex: _selectedIndex,
-        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings, size: 24.sp, color: Colors.white),
+            onPressed: () => Navigator.pushNamed(context, '/settings'),
+          ),
+        ],
+      ),
+      body: PageView(
+        physics: const NeverScrollableScrollPhysics(),
+        controller: _pageController,
+        children: const <Widget>[
+          ProductScreen(),
+          CartScreen(),
+          Center(child: Text('Profile Screen')),
+        ],
+        onPageChanged: (page) {
+          setState(() {
+            _selectedIndex = page;
+          });
+        },
+      ),
+      floatingActionButton: null,
+      bottomNavigationBar: BottomNavigationBar(
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        onTap: _onTappedBar,
+        backgroundColor: Colors.white,
+        selectedItemColor: const Color(0xFF1A237E),
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_bag),
+            label: 'Shop',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Cart',
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+        ],
+        currentIndex: _selectedIndex,
       ),
     );
   }
