@@ -1,8 +1,16 @@
-# Lab Activity 4: Discussion
+# Laboratory 5 Discussion
 
-When a DummyJSON account signs in, `UserService` sends its credentials to `POST /auth/login` and converts the response into the `User` model. The service saves the user ID, profile fields, and tokens with `SharedPreferences`. `ProfileScreen` calls `getUser()` to rebuild the model from saved data, then renders the user's name, image, email, gender, and ID. The local demo account Zyn Diaz (`zyn` / `zynpass`) follows the same save-and-render flow, but is stored locally rather than created on DummyJSON.
+## DummyJSON and Firebase Workflow
 
-The updated design follows a model-service-screen pattern: `User` defines the profile data, `UserService` owns API and persistence work, and `SignInScreen`, `SplashScreen`, and `ProfileScreen` handle the UI and session flow. The splash checks the saved token to decide whether to open the shop or sign-in; signing out clears the saved session.
+The sign-in screen lets the user choose either DummyJSON or Firebase. When DummyJSON is selected, the app sends the username and password to DummyJSON's `POST /auth/login` endpoint. `UserService` parses the returned account details and access and refresh tokens, then saves the session locally with `SharedPreferences`. DummyJSON is used for sign-in in this laboratory; it does not provide the app's Firebase signup flow.
 
-`CartScreen` retrieves the saved user with `UserService.getUser()`, takes `user.id`, and requests that user's cart from `GET /carts/user/{userId}`. Cart items from the response are combined with local `CartProvider` items so newly added products appear immediately. Product and detail screens also submit the saved user ID when adding products, avoiding a hard-coded account ID.
+When Firebase is selected, the user can sign in with an email address and password or open the signup screen. Signup validates the first name, last name, age, contact number, username, email, and password, then `UserService` creates the account with Firebase Authentication. It stores the additional profile fields in a Firestore document at `users/{uid}`. After either type of sign-in or a successful signup, the app opens the home screen. The splash screen checks the saved session when the app starts, and logout clears the local session and signs out of Firebase when applicable.
+
+## Main Idea of UserService
+
+`UserService` centralizes authentication and user-session operations so screens do not need to call Firebase, Firestore, DummyJSON, or `SharedPreferences` directly. The `LoginType` records which backend is active, allowing profile reads and account actions to use the matching implementation. The service handles sign-in, account creation, profile updates, password changes, account deletion, logout, and access-token retrieval or refresh. Screens are then responsible for collecting input, displaying feedback, and navigating between routes.
+
+## Benefits of Firebase in This Application
+
+Firebase Authentication provides managed email-and-password accounts without the app storing users' passwords. The Firebase SDK maintains the signed-in session and can refresh ID tokens when needed. Firestore gives Firebase users a persistent profile linked to their unique UID, while the deployed security rules restrict access to each user's own document. Together, Authentication and Firestore make the app's signup, profile, and account-management flows real backend operations, complementing DummyJSON's API-based login demonstration.
 

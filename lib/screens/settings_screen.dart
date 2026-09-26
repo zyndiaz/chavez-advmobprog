@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../providers/cart_provider.dart';
+import '../services/user_service.dart';
 import '../providers/theme_provider.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
+
+  Future<void> _logout(BuildContext context) async {
+    await UserService().logout();
+    if (!context.mounted) return;
+    context.read<CartProvider>().clearCart();
+    Navigator.pushNamedAndRemoveUntil(context, '/signin', (_) => false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +50,20 @@ class SettingsScreen extends StatelessWidget {
                   activeTrackColor: Colors.blue.shade200,
                   inactiveThumbColor: Colors.grey.shade400,
                   inactiveTrackColor: Colors.grey.shade300,
+                ),
+              ),
+            ),
+            const Spacer(),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: () => _logout(context),
+                icon: const Icon(Icons.logout),
+                label: const Text('Log out'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFFC43D37),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
               ),
             ),

@@ -16,6 +16,7 @@ class _SignInScreenState extends State<SignInScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _obscurePassword = true;
+  LoginType _loginType = LoginType.dummyJson;
 
   @override
   void dispose() {
@@ -29,12 +30,21 @@ class _SignInScreenState extends State<SignInScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
+    var didNavigate = false;
     try {
-      await UserService().loginUser(
-        _usernameController.text.trim(),
-        _passwordController.text,
-      );
+      if (_loginType == LoginType.firebase) {
+        await UserService().signIn(
+          email: _usernameController.text.trim(),
+          password: _passwordController.text,
+        );
+      } else {
+        await UserService().loginUser(
+          _usernameController.text.trim(),
+          _passwordController.text,
+        );
+      }
       if (!mounted) return;
+      didNavigate = true;
       Navigator.pushNamedAndRemoveUntil(context, '/home', (_) => false);
     } catch (error) {
       if (!mounted) return;
@@ -43,7 +53,7 @@ class _SignInScreenState extends State<SignInScreen> {
         context,
       ).showSnackBar(SnackBar(content: Text('Sign in failed: $message')));
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted && !didNavigate) setState(() => _isLoading = false);
     }
   }
 
@@ -144,17 +154,56 @@ class _SignInScreenState extends State<SignInScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
+                                  SegmentedButton<LoginType>(
+                                    showSelectedIcon: false,
+                                    segments: const [
+                                      ButtonSegment(
+                                        value: LoginType.dummyJson,
+                                        label: Text('DummyJSON'),
+                                      ),
+                                      ButtonSegment(
+                                        value: LoginType.firebase,
+                                        label: Text('Firebase'),
+                                      ),
+                                    ],
+                                    selected: {_loginType},
+                                    onSelectionChanged: _isLoading
+                                        ? null
+                                        : (selection) => setState(
+                                            () => _loginType = selection.first,
+                                          ),
+                                  ),
+                                  SizedBox(height: 18.h),
                                   TextFormField(
                                     controller: _usernameController,
                                     textInputAction: TextInputAction.next,
+                                    keyboardType:
+                                        _loginType == LoginType.firebase
+                                        ? TextInputType.emailAddress
+                                        : TextInputType.text,
                                     decoration: _fieldDecoration(
-                                      label: 'Username or email',
-                                      icon: Icons.person_outline,
+                                      label: _loginType == LoginType.firebase
+                                          ? 'Email address'
+                                          : 'Username',
+                                      icon: _loginType == LoginType.firebase
+                                          ? Icons.email_outlined
+                                          : Icons.person_outline,
                                     ),
-                                    validator: (value) =>
-                                        value == null || value.trim().isEmpty
-                                        ? 'Enter your username or email'
-                                        : null,
+                                    validator: (value) {
+                                      if (value == null ||
+                                          value.trim().isEmpty) {
+                                        return _loginType == LoginType.firebase
+                                            ? 'Enter your email address'
+                                            : 'Enter your username';
+                                      }
+                                      if (_loginType == LoginType.firebase &&
+                                          !RegExp(
+                                            r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
+                                          ).hasMatch(value.trim())) {
+                                        return 'Enter a valid email address';
+                                      }
+                                      return null;
+                                    },
                                   ),
                                   SizedBox(height: 14.h),
                                   TextFormField(
@@ -221,6 +270,19 @@ class _SignInScreenState extends State<SignInScreen> {
                                       ),
                                     ),
                                   ),
+                                  if (_loginType == LoginType.firebase) ...[
+                                    SizedBox(height: 10.h),
+                                    TextButton.icon(
+                                      onPressed: _isLoading
+                                          ? null
+                                          : () => Navigator.pushNamed(
+                                              context,
+                                              '/signup',
+                                            ),
+                                      icon: const Icon(Icons.person_add_alt_1),
+                                      label: const Text('Create an account'),
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),
