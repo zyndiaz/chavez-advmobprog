@@ -6,6 +6,7 @@ import '../models/cart.dart';
 import '../models/product.dart';
 import '../providers/cart_provider.dart';
 import '../services/cart_service.dart';
+import '../services/user_service.dart';
 import '../widgets/custom_text.dart';
 
 class ProductDetailScreen extends StatelessWidget {
@@ -78,8 +79,13 @@ class ProductDetailScreen extends StatelessWidget {
     cartProvider.addItem(product);
 
     try {
+      final user = await UserService().getUser();
+      if (user == null) {
+        throw Exception('Sign in to add products to your cart.');
+      }
+
       await CartService().addToCart(
-        userId: 1,
+        userId: user.id,
         products: [
           {'id': product.id, 'quantity': 1},
         ],

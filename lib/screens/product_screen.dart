@@ -8,6 +8,7 @@ import '../providers/cart_provider.dart';
 import '../services/cart_service.dart';
 import '../services/product_filter.dart';
 import '../services/product_service.dart';
+import '../services/user_service.dart';
 import '../widgets/custom_text.dart';
 
 class ProductScreen extends StatefulWidget {
@@ -46,9 +47,12 @@ class _ProductScreenState extends State<ProductScreen> {
 
     var cartItems = <CartProduct>[];
     try {
-      final carts = await CartService().getCartsByUserId(1);
-      if (carts.isNotEmpty) {
-        cartItems = carts.first.products;
+      final user = await UserService().getUser();
+      if (user != null) {
+        final carts = await CartService().getCartsByUserId(user.id);
+        if (carts.isNotEmpty) {
+          cartItems = carts.first.products;
+        }
       }
     } catch (_) {}
 
@@ -196,8 +200,13 @@ class _ProductScreenState extends State<ProductScreen> {
     cartProvider.addItem(product);
 
     try {
+      final user = await UserService().getUser();
+      if (user == null) {
+        throw Exception('Sign in to add products to your cart.');
+      }
+
       await CartService().addToCart(
-        userId: 1,
+        userId: user.id,
         products: [
           {'id': product.id, 'quantity': 1},
         ],

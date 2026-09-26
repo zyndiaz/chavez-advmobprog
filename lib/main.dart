@@ -8,6 +8,8 @@ import 'screens/home_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/product_screen.dart';
 import 'screens/cart_screen.dart';
+import 'screens/signin_screen.dart';
+import 'screens/splash_screen.dart';
 
 import 'providers/theme_provider.dart';
 import 'providers/cart_provider.dart';
@@ -15,12 +17,12 @@ import 'providers/cart_provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then(
-    (_) async {
-      await dotenv.load(fileName: 'assets/.env');
-      runApp(const ChavezAdvMobProg());
-    },
-  );
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((
+    _,
+  ) async {
+    await dotenv.load(fileName: 'assets/.env');
+    runApp(const ChavezAdvMobProg());
+  });
 }
 
 class ChavezAdvMobProg extends StatelessWidget {
@@ -45,8 +47,10 @@ class ChavezAdvMobProg extends StatelessWidget {
             darkTheme: themeModel.darkTheme,
             themeMode: themeModel.isDark ? ThemeMode.dark : ThemeMode.light,
             title: 'NU Bulldogs Exchange',
-            initialRoute: '/home',
+            initialRoute: '/splash',
             routes: {
+              '/splash': (context) => const SplashScreen(),
+              '/signin': (context) => const SignInScreen(),
               '/home': (context) => const HomeScreen(),
               '/product': (context) => const ProductScreen(),
               '/cart': (context) => const CartScreen(),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'product_screen.dart';
 import 'cart_screen.dart';
+import 'profile_screen.dart';
 import '../widgets/custom_text.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -58,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: const <Widget>[
           ProductScreen(),
           CartScreen(),
-          Center(child: Text('Profile Screen')),
+          ProfileScreen(),
         ],
         onPageChanged: (page) {
           setState(() {

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/cart.dart';
 import '../providers/cart_provider.dart';
 import '../services/cart_service.dart';
+import '../services/user_service.dart';
 import '../widgets/custom_text.dart';
 import 'detail_screen.dart';
 
@@ -16,7 +17,7 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  static const int _userId = 1;
+  int _userId = 0;
   late Future<Cart?> _userCartFuture;
   List<CartProduct> _items = [];
 
@@ -28,9 +29,13 @@ class _CartScreenState extends State<CartScreen> {
 
   Future<Cart?> _loadUserCart() async {
     try {
-      final carts = await CartService().getCartsByUserId(_userId);
+      final user = await UserService().getUser();
+      if (user == null) return null;
+
+      _userId = user.id;
+      final carts = await CartService().getCartsByUserId(user.id);
       final cart = carts.isNotEmpty ? carts.first : null;
-      if (cart != null) {
+      if (cart != null && mounted) {
         setState(() {
           _items = List<CartProduct>.from(cart.products);
         });
