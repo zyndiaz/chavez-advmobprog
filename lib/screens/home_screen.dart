@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'chat_screen.dart';
 import 'product_screen.dart';
 import 'cart_screen.dart';
 import 'profile_screen.dart';
@@ -38,6 +39,8 @@ class _HomeScreenState extends State<HomeScreen> {
               text: _selectedIndex == 0
                   ? 'Shop'
                   : _selectedIndex == 1
+                  ? 'Chats'
+                  : _selectedIndex == 2
                   ? 'Cart'
                   : 'Profile',
               fontSize: _selectedIndex == 0 ? 18.sp : 20.sp,
@@ -58,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
         controller: _pageController,
         children: const <Widget>[
           ProductScreen(),
+          ChatScreen(),
           CartScreen(),
           ProfileScreen(),
         ],
@@ -79,6 +83,10 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_bag),
             label: 'Shop',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            label: 'Chats',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart),

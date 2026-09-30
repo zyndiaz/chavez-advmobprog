@@ -2,9 +2,33 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isChatParticipant(chatRoomId) {
+      return request.auth != null
+        && request.auth.uid in chatRoomId.split('_');
+    }
+
     match /users/{userId} {
       allow read, create, update, delete: if request.auth != null
         && request.auth.uid == userId;
+    }
+
+    match /chat_directory/{userId} {
+      allow read: if request.auth != null;
+      allow create, update, delete: if request.auth != null
+        && request.auth.uid == userId;
+    }
+
+    match /chat_rooms/{chatRoomId}/messages/{messageId} {
+      allow read: if isChatParticipant(chatRoomId);
+      allow create: if isChatParticipant(chatRoomId)
+        && request.auth.uid == request.resource.data.senderId
+        && request.resource.data.receiverId in chatRoomId.split('_')
+        && request.resource.data.status == 'delivered';
+      allow update: if isChatParticipant(chatRoomId)
+        && request.auth.uid == resource.data.receiverId
+        && request.resource.data.status == 'seen'
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['status']);
     }
   }
 }

@@ -35,6 +35,9 @@ class UserService {
     if (user != null) {
       await _clearLocalSession();
       await _cacheFirebaseUser(user);
+      try {
+        await syncChatDirectory();
+      } catch (_) {}
     }
     return credential;
   }
@@ -71,6 +74,9 @@ class UserService {
     await _cacheFirebaseUser(user, profile: profile);
     try {
       await firestore.collection('users').doc(user.uid).set(profile);
+      try {
+        await syncChatDirectory();
+      } catch (_) {}
       await user.getIdToken(true);
     } catch (_) {
       try {
@@ -101,6 +107,9 @@ class UserService {
         'username': username,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
+      try {
+        await syncChatDirectory();
+      } catch (_) {}
       await preferences.setString('username', username);
       return;
     }
@@ -164,6 +173,7 @@ class UserService {
       password: password,
     );
     await user.reauthenticateWithCredential(credential);
+    await firestore.collection('chat_directory').doc(user.uid).delete();
     await firestore.collection('users').doc(user.uid).delete();
     await user.delete();
     await signOut();
@@ -304,6 +314,21 @@ class UserService {
           : preferences.getString('accessToken') ?? '',
       'refreshToken': preferences.getString('refreshToken') ?? '',
     };
+  }
+
+  Future<void> syncChatDirectory() async {
+    final user = currentUser;
+    if (user == null) return;
+
+    final snapshot = await firestore.collection('users').doc(user.uid).get();
+    final profile = snapshot.data() ?? <String, dynamic>{};
+    await firestore.collection('chat_directory').doc(user.uid).set({
+      'uid': user.uid,
+      'firstName': (profile['firstName'] ?? '').toString(),
+      'lastName': (profile['lastName'] ?? '').toString(),
+      'username': (profile['username'] ?? user.displayName ?? '').toString(),
+      'email': (profile['email'] ?? user.email ?? '').toString(),
+    }, SetOptions(merge: true));
   }
 
   Future<User?> getUser() async {
